@@ -29,7 +29,6 @@ jobs:
       script: 
       - poetry run lint
       - poetry run bandit
-      - poetry run flake
     - stage: test
         - poetry run coverage
         - poetry run unit_tests

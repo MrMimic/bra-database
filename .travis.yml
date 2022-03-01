@@ -3,12 +3,6 @@ language: python
 python:
   - "3.9"
 
-cache:
-  key: "${CI_JOB_NAME}"
-  paths:
-    - .cache/pip
-    - .venv
-
 stages:
   - lint
   - test

@@ -3,6 +3,7 @@
 import logging
 import os
 import re
+from curses.ascii import isdigit
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
@@ -156,8 +157,9 @@ class PdfParser():
                     raw_detection = pytesseract.image_to_string(img_rgb, config=custom_oem_psm_config)
                     character = raw_detection.replace("\n", "").replace("\x0c", "").replace(" ",
                                                                                             "").encode("utf8").decode()
-                    if character != "":
+                    if character != "" and isdigit(character):
                         self.logger.debug(f"OEM: {oem}, PSM: {psm}, text: {character}")
+                        # If the character is a number, add it to the list
                         chracters.append(character)
                 except (TesseractError, FileNotFoundError):
                     continue
@@ -176,10 +178,8 @@ class PdfParser():
         self.logger.info(f"Parsing file {file_path}")
         structured_data = StructuredData()
         with pdfplumber.open(file_path) as pdf:
-
             for index, page in enumerate(pdf.pages):
                 # Extracting informations
-                print(page.extract_text())
                 structured_data = self._insert_info(structured_data, self._get_massif(page.extract_text()), "massif")
                 structured_data = self._insert_info(structured_data, self._get_date(page.extract_text()), "date")
                 structured_data = self._insert_info(structured_data, self._get_until(page.extract_text()), "until")

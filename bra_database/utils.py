@@ -2,7 +2,26 @@
 """
 import logging
 import os
+from dataclasses import dataclass
 from datetime import datetime
+
+
+@dataclass
+class FrenchMonthsNumber:
+    """French months numbers.
+    """
+    janvier: int = 1
+    février: int = 2
+    mars: int = 3
+    avril: int = 4
+    mai: int = 5
+    juin: int = 6
+    juillet: int = 7
+    août: int = 8
+    septembre: int = 9
+    octobre: int = 10
+    novembre: int = 11
+    décembre: int = 12
 
 
 def get_logger(base_path: str = None) -> logging.Logger:

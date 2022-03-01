@@ -24,8 +24,9 @@ jobs:
       - poetry run lint
       - poetry run bandit
     - stage: test
-        - poetry run coverage
-        - poetry run unit_tests
+      script:
+      - poetry run coverage
+      - poetry run unit_tests
     - stage: deploy
       script:
         - echo "Deploying to PyPI..."

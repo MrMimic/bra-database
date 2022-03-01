@@ -1,0 +1,38 @@
+language: python
+
+python:
+  - "3.9"
+
+cache:
+  key: "${CI_JOB_NAME}"
+  paths:
+    - .cache/pip
+    - .venv
+
+stages:
+  - lint
+  - test
+  - name: deploy
+    if: branch = main
+
+before_install:
+  - export PYTHONPATH=$PYTHONPATH:$(pwd)
+  - python3 -m pip install --upgrade pip
+  - python3 -m pip install poetry
+
+install:
+  - poetry install
+
+jobs:
+  include:
+    - stage: lint
+      script: 
+      - poetry run lint
+      - poetry run bandit
+      - poetry run flake
+    - stage: test
+        - poetry run coverage
+        - poetry run unit_tests
+    - stage: deploy
+      script:
+        - echo "Deploying to PyPI..."

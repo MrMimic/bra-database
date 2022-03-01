@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "bra-database"
+version = "0.0.1"
+description = "Parsing French avalanche risk news and upload information to a structured DB"
+authors = ["Emeric <emeric.dynomant@gmail.com>"]
+license = "GPL-3"
+
+packages = [
+    { include = "bra_database" }
+]
+
+[tool.poetry.scripts]
+fmt = "cicd:fmt"
+flake = "cicd:flake"
+lint = "cicd:lint"
+coverage = "cicd:coverage"
+bandit = "cicd:bandit"
+unit_tests = "cicd:unit_tests"
+
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+[tool.poetry.dev-dependencies]
+halo = "^0.0.31"
+pytest = "^7.0.1"
+pylint = "^2.12.2"
+mypy = "^0.931"
+yapf = "^0.32.0"
+flake8 = "^4.0.1"
+flake8-bandit = "^2.1.2"
+coverage = "^6.3.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

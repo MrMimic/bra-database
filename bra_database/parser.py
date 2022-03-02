@@ -1,25 +1,27 @@
 """Module used to parse PDF files.
 """
+import json
 import logging
 import os
 import re
 from curses.ascii import isdigit
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
+from typing import Any, Dict
 
 import cv2
 import pdfplumber
 import pytesseract
 from pytesseract.pytesseract import TesseractError
 
-from bra_database.utils import FrenchMonthsNumber, get_logger
+from bra_database.utils import (FrenchMonthsNumber, StabiliteManteauKeys, get_logger)
 
 
 @dataclass
 class StructuredData:
     """Data class to store the parsed data.
     """
+    original_link: str = None
     massif: str = None
     date: str = None
     until: str = None
@@ -33,10 +35,29 @@ class StructuredData:
     """
     Risk as a non-structured sentence.
     """
-    typical_situation: str = None
+    stabilite_manteau_bloc: str = None
+    """
+    The JSON bloc containing the 3 following keys.
+    """
+    situation_avalancheuse_typique: str = None
     """
     Situations avalancheuses typiques
     """
+    departs_spontanes: str = None
+    """
+    Avalanches spontanées
+    """
+    declanchements_provoques: str = None
+    """
+    Déclenchements skieurs
+    """
+    qualite_neige: str = None
+    """
+    Quallité de la neige
+    """
+
+    def __repr__(self) -> None:
+        return "- " + "\n- ".join([f"{key}: {value}" for key, value in self.__dict__.items()]) + "\n"
 
 
 class PdfParser():
@@ -57,7 +78,8 @@ class PdfParser():
         self.r_departs_spontanes = r"\s?Départs spontanés\s?:\s?(.*?)\.?\s?Déclenchements skieurs"
         self.r_declanchement_skieurs = r"\s?Déclenchements skieurs\s?:\s?(.*?)\.?\s?Indices de risque"
         self.r_risk_str = r"Estimation des risques jusqu'au .*\n(.*)\.?\nDéparts spontanés"
-        self.r_typical_situation = r"Situations avalancheuses typiques\s?:\s?(.*?)\.?\s?Départs spontanés"
+        self.r_stabilite_manteau = r"Stabilité du manteau neigeux(.*?)Neige fraîche à 1800 m"
+        self.r_qualite_neige = r"Qualité de la neige(.*?)Tendance ultérieure des risques"
 
     @staticmethod
     def _insert_info(structured_data: StructuredData, data: Any, key: str) -> StructuredData:
@@ -124,10 +146,43 @@ class PdfParser():
         """
         return self._get_from_regexp(text, self.r_risk_str)
 
-    def _get_typical_situation(self, text: str) -> str:
-        """Get the risk score of the BRA.
+    def _get_stabilite_manteau(self, text: str) -> str:
+        """This bloc of text is less structured than others.
         """
-        return self._get_from_regexp(text.replace("\n", ""), self.r_typical_situation)
+        # We keep track of the \n
+        text_bloc = self._get_from_regexp(text.replace("\n", "::"), self.r_stabilite_manteau)
+        if text_bloc:
+            # Find the text keys
+            r_keys = re.compile(r"\:\:([^:]*?) \: ")
+            keys = re.findall(r_keys, text_bloc)
+            # The text of each key is retrieved behing this one and the next
+            texts = {}
+            for index, key in enumerate(keys):
+                try:
+                    regexp = re.compile(f"{key}(.*?){keys[index + 1]}")
+                except IndexError:
+                    regexp = re.compile(f"{key}(.*?)$")
+                text = " ".join(re.search(regexp, text_bloc).group(1).replace(":", " ").split())
+                texts[key] = text
+            return json.dumps(texts, ensure_ascii=False)
+        return None
+
+    @staticmethod
+    def _insert_stabilite_manteau(structured_data: StructuredData, data: Dict[str, str]) -> str:
+        """Insert stabilite manteau in a structured data object.
+        """
+        key_words_relations = StabiliteManteauKeys()
+        # The keys of this text are not consdistent, they must be mapped.
+        for key, value in data.items():
+            best_match = key_words_relations.retrieve_best_match(key)
+            if best_match:
+                setattr(structured_data, best_match, value)
+        return structured_data
+
+    def _get_qualite_neige(self, text: str) -> str:
+        """Get the risk of autonomous avalanche starts.
+        """
+        return self._get_from_regexp(text.replace("\n", " "), self.r_qualite_neige)
 
     def _extract_and_save_image(self, page: pdfplumber.PDF, image: pdfplumber.PDF, image_path: str) -> None:
         """Extract and save an image from a PDF page.
@@ -176,7 +231,9 @@ class PdfParser():
         """Parse a PDF file and extract informations based on regexps matching.
         """
         self.logger.info(f"Parsing file {file_path}")
-        structured_data = StructuredData()
+        structured_data = StructuredData(
+            original_link=
+            f"https://donneespubliques.meteofrance.fr/donnees_libres/Pdf/BRA/BRA.{file_path.split('/')[-1]}")
         with pdfplumber.open(file_path) as pdf:
             for index, page in enumerate(pdf.pages):
                 # Extracting informations
@@ -190,9 +247,13 @@ class PdfParser():
                                                     "declanchements")
                 structured_data = self._insert_info(structured_data, self._get_risk_str(page.extract_text()),
                                                     "risk_str")
-                structured_data = self._insert_info(structured_data, self._get_typical_situation(page.extract_text()),
-                                                    "typical_situation")
-
+                structured_data = self._insert_info(structured_data, self._get_qualite_neige(page.extract_text()),
+                                                    "qualite_neige")
+                structured_data = self._insert_info(structured_data, self._get_stabilite_manteau(page.extract_text()),
+                                                    "stabilite_manteau_bloc")
+                # Now this JSON should be parsed to get the 3 resulting keys
+                structured_data = self._insert_stabilite_manteau(structured_data,
+                                                                 json.loads(structured_data.stabilite_manteau_bloc))
                 # Extract the avalanche risk score from the image that contains it in the first page
                 if index == 0:
                     risk_image = [img for img in page.images if img["name"] == "Im10"]

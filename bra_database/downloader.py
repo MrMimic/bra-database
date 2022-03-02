@@ -1,9 +1,9 @@
 """Module handling downloading the different BRA PDF files.
 """
 import logging
-from datetime import datetime
 import os
 import shutil
+from datetime import datetime
 
 import requests
 

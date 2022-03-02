@@ -23,8 +23,8 @@ class StructuredData:
     """
     original_link: str = None
     massif: str = None
-    date: str = None
-    until: str = None
+    date: datetime = None
+    until: datetime = None
     departs: str = None
     declanchements: str = None
     risk_score: int = None

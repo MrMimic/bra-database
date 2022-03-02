@@ -32,7 +32,8 @@ class StabiliteManteauKeys():
     def __init__(self):
         self.situation_avalancheuse_typique: List[str] = ["typique", "avalancheuse"]
         self.departs_spontanes: List[str] = ["spontané"]
-        self.declanchements_provoques: List[str] = ["skieurs", "déclanchement"]
+        self.declanchements_provoques: List[str] = [
+            "skieurs", "déclanchement", "déclenchements", "provoqués"]
 
     def retrieve_best_match(self, text: str) -> str:
         """Retrieve the best match of a text in the list of keys.

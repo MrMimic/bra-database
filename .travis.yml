@@ -12,6 +12,9 @@ stages:
 before_install:
   - sudo apt-get update
   - sudo apt-get -y install tesseract-ocr
+  - sudo cat /etc/ImageMagick-6/policy.xml | tail
+  - sudo sed -i 's/<policy domain="coder" rights="none" pattern="PDF" \/>/<policy domain="coder" rights="read|write" pattern="PDF" \/>/g' /etc/ImageMagick-6/policy.xml
+  - sudo cat /etc/ImageMagick-6/policy.xml | tail
   - tesseract --help
   - pip install poetry
 

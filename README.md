@@ -6,10 +6,15 @@ Easily parse BRA (french risks of avalanche news) and create a structured databa
 
 ### Database
 
-Create a .env file containing:
+Locally, create a .env file containing:
 
 ```bash
-    export MYSQL_USR=USER
-    export MYSQL_PWD=PASSWORD
-    export MYSQL_PORT=3306
+    MYSQL_USER=
+    MYSQL_PWD=
+    MYSQL_HOST=
+    MYSQL_PORT=
+    MYSQL_DB=
+    MYSQL_TABLE=
 ```
+
+On Travis, use [encryption variables](https://docs.travis-ci.com/user/environment-variables/#defining-encrypted-variables-in-travisyml).

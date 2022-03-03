@@ -13,10 +13,9 @@ before_install:
   - sudo apt-get update
   - sudo apt-get -y install tesseract-ocr
   - tesseract --help
-  - export PYTHONPATH=$PYTHONPATH:$(pwd)
+  - pip install poetry
 
 install:
-  - pip install poetry
   - poetry install
 
 jobs:

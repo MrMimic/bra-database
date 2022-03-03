@@ -10,16 +10,12 @@ stages:
     if: branch = main
 
 before_install:
+  - sudo apt-get update
+  - sudo apt-get -y install tesseract
   - tesseract --help
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
   - python3 -m pip install --upgrade pip
   - python3 -m pip install poetry
-
-  addons:
-  apt:
-    update: true
-    packages:
-      - tesseract
 
 install:
   - poetry install

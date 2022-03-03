@@ -6,6 +6,7 @@ import shutil
 from datetime import datetime
 
 import requests
+from retry import retry
 
 from bra_database.utils import get_logger
 
@@ -37,13 +38,25 @@ class BraDownloader():
         file_path = f"https://donneespubliques.meteofrance.fr/donnees_libres/Pdf/BRA/bra.{date}.json"
         return file_path
 
-    def get_json_timestamp_file(self) -> None:
+    def get_json_timestamp_file(self, date: str = None) -> None:
         """A JSON file contains the timestamps of the files to be downloaded.
         """
-        json_file_path = self._create_file_path(date="20220228")
+        json_file_path = self._create_file_path(date=date)
         self.logger.info(f"Téléchargement de {json_file_path}")
         self.timestamps_bra = requests.get(json_file_path).json()
         self.logger.info(f"Données de {len(json_file_path)} massifs reçus.")
+
+    @retry(tries=2, delay=10)
+    def _download_file(self, file_name: str) -> None:
+        """Download a BRA file.
+        """
+        file_path = os.path.join(self.pdf_path, file_name)
+        if not os.path.isfile(file_path):
+            bra_url = f"https://donneespubliques.meteofrance.fr/donnees_libres/Pdf/BRA/BRA.{file_name}"
+            self.logger.debug(f"Téléchargement de {bra_url}")
+            response = requests.get(bra_url, stream=True)
+            with open(file_path, 'wb') as out_file:
+                shutil.copyfileobj(response.raw, out_file)
 
     def get_pdf_file(self) -> None:
         """Download a PDF file.
@@ -53,8 +66,4 @@ class BraDownloader():
                 file_name = f"{bra['massif']}.{time}.pdf"
                 self.file_name.append(file_name)
                 if file_name not in os.listdir(self.pdf_path):
-                    bra_url = f"https://donneespubliques.meteofrance.fr/donnees_libres/Pdf/BRA/BRA.{file_name}"
-                    self.logger.debug(f"Téléchargement de {bra_url}")
-                    response = requests.get(bra_url, stream=True)
-                    with open(os.path.join(self.pdf_path, file_name), 'wb') as out_file:
-                        shutil.copyfileobj(response.raw, out_file)
+                    self._download_file(file_name=file_name)

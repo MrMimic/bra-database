@@ -35,11 +35,11 @@ class BraInserter():
             if ctype.__name__ == "str":
                 if column in [
                         "stabilite_manteau_bloc", "declanchements_provoques", "situation_avalancheuse_typique",
-                        "departs_spontanes", "qualite_neige"
+                        "departs_spontanes", "qualite_neige", ""
                 ]:
-                    varchar_size = 1000
+                    varchar_size = 1500
                 else:
-                    varchar_size = 100
+                    varchar_size = 150
                 table_columns += (f"{column} VARCHAR({varchar_size})", )
             elif ctype.__name__ == "int":
                 table_columns += (f"{column} SMALLINT", )
@@ -54,7 +54,7 @@ class BraInserter():
         query = f"""
             CREATE TABLE IF NOT EXISTS {self.credentials.database}.{self.credentials.table} \
             (id INT PRIMARY KEY AUTO_INCREMENT, {', '.join(table_columns)}, \
-            CONSTRAINT unique_bra_each_day UNIQUE(massif, date)) \
+            CONSTRAINT unique_bra_each_day UNIQUE(original_link, massif, date)) \
             DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         """
         with connection.cursor() as cursor:

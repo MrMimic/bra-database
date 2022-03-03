@@ -18,3 +18,10 @@ Locally, create a .env file containing:
 ```
 
 On Travis, use [encryption variables](https://docs.travis-ci.com/user/environment-variables/#defining-encrypted-variables-in-travisyml).
+
+### Folder
+
+```bash
+    export BRA_PDF_FOLDER=$PWD/out
+    export BRA_LOG_FOLDER=$PWD/logs
+```

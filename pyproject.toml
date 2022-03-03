@@ -27,6 +27,7 @@ pytesseract = "^0.3.9"
 Pillow = "^9.0.1"
 PyMySQL = "^1.0.2"
 python-dotenv = "^0.19.2"
+retry = "^0.9.2"
 
 [tool.poetry.dev-dependencies]
 halo = "^0.0.31"

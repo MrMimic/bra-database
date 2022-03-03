@@ -23,8 +23,8 @@ class StructuredData:
     """
     original_link: str = None
     massif: str = None
-    date: str = None
-    until: str = None
+    date: datetime = None
+    until: datetime = None
     departs: str = None
     declanchements: str = None
     risk_score: int = None
@@ -184,7 +184,8 @@ class PdfParser():
         """
         return self._get_from_regexp(text.replace("\n", " "), self.r_qualite_neige)
 
-    def _extract_and_save_image(self, page: pdfplumber.PDF, image: pdfplumber.PDF, image_path: str) -> None:
+    @staticmethod
+    def _extract_and_save_image(page: pdfplumber.PDF, image: pdfplumber.PDF, image_path: str) -> None:
         """Extract and save an image from a PDF page.
         """
         page_height = page.height
@@ -199,7 +200,7 @@ class PdfParser():
         """
         self.logger.info(f"Analysing image {image_path}")
 
-        img = cv2.imread(image_path)
+        img = cv2.imread(image_path)  # pylint: disable=E1101
         # Crop the image to reduce the noise in OCR
         cropped_image = img[0:60, 0:60]
         # Apply OCR with different models properties
@@ -207,7 +208,7 @@ class PdfParser():
         for oem in range(0, 4):
             for psm in range(0, 15):
                 custom_oem_psm_config = f"--oem {oem} --psm {psm}"
-                img_rgb = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2RGB)
+                img_rgb = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2RGB)  # pylint: disable=E1101
                 try:
                     raw_detection = pytesseract.image_to_string(img_rgb, config=custom_oem_psm_config)
                     character = raw_detection.replace("\n", "").replace("\x0c", "").replace(" ",

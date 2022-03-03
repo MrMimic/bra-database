@@ -5,7 +5,53 @@ import os
 from dataclasses import dataclass
 from datetime import datetime
 from typing import List
-from dataclasses import dataclass
+from dotenv import load_dotenv
+
+
+class DbCredentials:
+    """Class handling credentials.
+    """
+    def __init__(self,
+                 username: str = None,
+                 password: str = None,
+                 host: str = None,
+                 port: int = None,
+                 database: str = None):
+        # Load .env file
+        load_dotenv()
+        self.user = username or self._try_to_get_key("MYSQL_USER")
+        self.password = password or self._try_to_get_key("MYSQL_PWD")
+        self.host = host or self._try_to_get_key("MYSQL_HOST")
+        self.port = port or int(self._try_to_get_key("MYSQL_PORT"))
+        self.database = database or self._try_to_get_key("MYSQL_DB")
+        self.table = database or self._try_to_get_key("MYSQL_TABLE")
+
+    @staticmethod
+    def _try_to_get_key(key: str) -> str:
+        """Try to get the key from the environment.
+        """
+        try:
+            return os.environ[key]
+        except KeyError:
+            return None
+
+    def get_connection_string(self) -> str:
+        """Return a connection string.
+        """
+        return f"mysql+pymysql://{self.user}:{self.password}@{self.host}:{self.port}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of the credentials.
+        """
+        output = f"""
+        Found database parameters:
+            \t- User: {self.user}
+            \t- Password: {'*' * (len(list(self.password)) + 1)}
+            \t- Host: {self.host}
+            \t- Port: {self.port}
+        """
+        return output
+
 
 @dataclass
 class FrenchMonthsNumber:
@@ -24,15 +70,17 @@ class FrenchMonthsNumber:
     novembre: int = 11
     décembre: int = 12
 
+
 class StabiliteManteauKeys():
     """
     Under the "Stabilité du manteau neigeux" text bloc, the keys of the text are not consistents.
     To structure them, for now, this class only store words that should be retireved.
     """
+
     def __init__(self):
         self.situation_avalancheuse_typique: List[str] = ["typique", "avalancheuse"]
         self.departs_spontanes: List[str] = ["spontané"]
-        self.declanchements_provoques: List[str] = ["skieurs", "déclanchement"]
+        self.declanchements_provoques: List[str] = ["skieurs", "déclanchement", "déclenchements", "provoqués"]
 
     def retrieve_best_match(self, text: str) -> str:
         """Retrieve the best match of a text in the list of keys.
@@ -43,26 +91,28 @@ class StabiliteManteauKeys():
                     return key
         return None
 
-def get_logger(base_path: str = None) -> logging.Logger:
+
+def get_logger(base_path: str = "logs") -> logging.Logger:
     """Define and returns a logger.
     """
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
     # Format
     formatter = logging.Formatter("%(asctime)s : %(levelname)s : %(name)s : %(message)s")
+    # Stream handler
+    if not logger.handlers:
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(formatter)
+        logger.addHandler(stream_handler)
     # File handler
-    if not os.path.exists("logs"):
-        os.makedirs("logs")
+    if not os.path.exists(base_path):
+        os.makedirs(base_path)
     execution_date = datetime.today().strftime("%Y%m%d")
-    log_path = os.path.join("logs", f"{execution_date}_bra_database.log") if not base_path else os.path.join(
-        base_path, f"{execution_date}_bra_database.log")
+    log_path = os.path.join(base_path, f"{execution_date}_bra_database.log")
     if os.path.exists(log_path):
         os.remove(log_path)
     file_handler = logging.FileHandler(log_path)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
-    # Stream handler
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(formatter)
-    logger.addHandler(stream_handler)
+
     return logger

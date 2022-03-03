@@ -22,7 +22,7 @@ class ParserTests(unittest.TestCase):
         """Test the PDF parser on an uploaded BRA.
         """
         structured_data = self.parser.parse(os.path.join(self.data, "BEAUFORTAIN.20220228150738.pdf"))
-        self.assertEqual(structured_data.massif, "BEAUFORTAIN")
+        self.assertEqual(structured_data.massif, "beaufortain")
         self.assertEqual(structured_data.date, datetime(2022, 2, 28, 0, 0))
         self.assertEqual(structured_data.until, datetime(2022, 3, 1, 0, 0))
         self.assertEqual(structured_data.departs, "rares coulée")

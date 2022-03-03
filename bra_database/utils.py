@@ -5,12 +5,14 @@ import os
 from dataclasses import dataclass
 from datetime import datetime
 from typing import List
+
 from dotenv import load_dotenv
 
 
 class DbCredentials:
     """Class handling credentials.
     """
+
     def __init__(self,
                  username: str = None,
                  password: str = None,

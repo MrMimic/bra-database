@@ -14,7 +14,8 @@ import pdfplumber
 import pytesseract
 from pytesseract.pytesseract import TesseractError
 
-from bra_database.utils import (FrenchMonthsNumber, StabiliteManteauKeys, get_logger)
+from bra_database.utils import (FrenchMonthsNumber, StabiliteManteauKeys,
+                                get_logger)
 
 
 @dataclass
@@ -200,7 +201,7 @@ class PdfParser():
         """
         self.logger.info(f"Analysing image {image_path}")
 
-        img = cv2.imread(image_path)  # pylint: disable=E1101
+        img = cv2.imread(image_path)    # pylint: disable=E1101
         # Crop the image to reduce the noise in OCR
         cropped_image = img[0:60, 0:60]
         # Apply OCR with different models properties
@@ -208,7 +209,7 @@ class PdfParser():
         for oem in range(0, 4):
             for psm in range(0, 15):
                 custom_oem_psm_config = f"--oem {oem} --psm {psm}"
-                img_rgb = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2RGB)  # pylint: disable=E1101
+                img_rgb = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2RGB)    # pylint: disable=E1101
                 try:
                     raw_detection = pytesseract.image_to_string(img_rgb, config=custom_oem_psm_config)
                     character = raw_detection.replace("\n", "").replace("\x0c", "").replace(" ",

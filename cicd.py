@@ -50,7 +50,6 @@ def coverage() -> None:
     spinner = Halo(text="> Checking code coverage", spinner="dots", placement="left")
     spinner.start()
     run_bash_and_check(["python3", "-m", "coverage",  "run", "-m", "pytest", "tests"])
-    run_bash_and_check(["python3", "-m", "coverage",  "report", "-m"])
     spinner.succeed()
 
 

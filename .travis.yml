@@ -13,7 +13,7 @@ before_install:
   - sudo apt-get update
   - sudo apt-get -y install tesseract-ocr
   - tesseract --help
-  - pip install poetry==1.1.12
+  - pip install poetry
 
 install:
   - poetry install

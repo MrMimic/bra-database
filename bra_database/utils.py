@@ -4,8 +4,9 @@ import logging
 import os
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
+import pymysql
 from dotenv import load_dotenv
 
 
@@ -18,7 +19,9 @@ class DbCredentials:
                  password: str = None,
                  host: str = None,
                  port: int = None,
-                 database: str = None):
+                 database: str = None,
+                 logger: logging.Logger = None) -> None:
+        self.logger = logger or get_logger()
         # Load .env file
         load_dotenv()
         self.user = username or self._try_to_get_key("MYSQL_USER")
@@ -27,9 +30,28 @@ class DbCredentials:
         self.port = port or int(self._try_to_get_key("MYSQL_PORT"))
         self.database = database or self._try_to_get_key("MYSQL_DB")
         self.table = database or self._try_to_get_key("MYSQL_TABLE")
+        # Say hello
+        self._handshake()
+
+    def _handshake(self) -> None:
+        """Get the number of already treated files in the DB.
+        """
+        query = f"""
+            SELECT COUNT(original_link) AS nb_files
+            FROM {self.database}.{self.table}
+        """
+        connection = pymysql.connect(host=self.host,
+                                     user=self.user,
+                                     password=self.password,
+                                     port=self.port,
+                                     db=self.database)
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            cursor.execute(query)
+            self.inserted_files = cursor.fetchone()["nb_files"]
+            self.logger.info(f"Found {self.inserted_files} files in the database.")
 
     @staticmethod
-    def _try_to_get_key(key: str) -> str:
+    def _try_to_get_key(key: str) -> Optional[str]:
         """Try to get the key from the environment.
         """
         try:
@@ -94,7 +116,7 @@ class StabiliteManteauKeys():
         self.departs_spontanes: List[str] = ["spontané"]
         self.declanchements_provoques: List[str] = ["skieurs", "déclanchement", "déclenchements", "provoqués"]
 
-    def retrieve_best_match(self, text: str) -> str:
+    def retrieve_best_match(self, text: str) -> Optional[str]:
         """Retrieve the best match of a text in the list of keys.
         """
         for key, words in self.__dict__.items():

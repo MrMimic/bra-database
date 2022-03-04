@@ -3,9 +3,13 @@ dist: xenial
 python:
   - "3.9"
 
+services:
+  - docker
+
 stages:
   - lint
   - test
+  - build
   - name: deploy
     if: branch = main
 
@@ -31,6 +35,9 @@ jobs:
       script:
       - poetry run coverage
       - poetry run unit_tests
+    - stage: build
+      script:
+        - docker build -t bra/backend:latest .
     - stage: deploy
       script:
-        - echo "Deploying to PyPI..."
+        - echo "docker push ..."

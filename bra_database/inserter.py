@@ -1,7 +1,7 @@
 """Insert structured data into a GCP MySQL database.
 """
 import logging
-from typing import Any, get_type_hints
+from typing import Any, List, get_type_hints
 
 import pymysql
 from pymysql.err import IntegrityError
@@ -72,7 +72,7 @@ class BraInserter():
         """
         return query
 
-    def __enter__(self) -> None:
+    def __enter__(self) -> Any:
         """Get a connection.
         """
         self.connection = pymysql.connect(host=self.credentials.host,
@@ -88,7 +88,7 @@ class BraInserter():
         self.connection.commit()
         self.connection.close()
 
-    def list_inserted_files_recently(self, days: int = 7) -> None:
+    def list_inserted_files_recently(self, days: int = 7) -> List[str]:
         """List the original PDF file from the database that have been inserted less than a week ago.
         """
         query = f"""

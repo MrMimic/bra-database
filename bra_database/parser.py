@@ -7,9 +7,9 @@ import re
 from curses.ascii import isdigit
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
-import cv2
+import cv2  # type: ignore
 import pdfplumber
 import pytesseract
 from pytesseract.pytesseract import TesseractError
@@ -22,42 +22,42 @@ from bra_database.utils import (FrenchMonthsNumber, StabiliteManteauKeys,
 class StructuredData:
     """Data class to store the parsed data.
     """
-    original_link: str = None
-    massif: str = None
-    date: datetime = None
-    until: datetime = None
-    departs: str = None
-    declanchements: str = None
-    risk_score: int = None
+    original_link: Optional[str] = None
+    massif: Optional[str] = None
+    date: Optional[datetime] = None
+    until: Optional[datetime] = None
+    departs: Optional[str] = None
+    declanchements: Optional[str] = None
+    risk_score: Optional[int] = None
     """
     Main risk score of the BRA
     """
-    risk_str: str = None
+    risk_str: Optional[str] = None
     """
     Risk as a non-structured sentence.
     """
-    stabilite_manteau_bloc: str = None
+    stabilite_manteau_bloc: Optional[str] = None
     """
     The JSON bloc containing the 3 following keys.
     """
-    situation_avalancheuse_typique: str = None
+    situation_avalancheuse_typique: Optional[str] = None
     """
     Situations avalancheuses typiques
     """
-    departs_spontanes: str = None
+    departs_spontanes: Optional[str] = None
     """
     Avalanches spontanées
     """
-    declanchements_provoques: str = None
+    declanchements_provoques: Optional[str] = None
     """
     Déclenchements skieurs
     """
-    qualite_neige: str = None
+    qualite_neige: Optional[str] = None
     """
     Quallité de la neige
     """
 
-    def __repr__(self) -> None:
+    def __repr__(self) -> str:
         return "- " + "\n- ".join([f"{key}: {value}" for key, value in self.__dict__.items()]) + "\n"
 
 
@@ -169,7 +169,7 @@ class PdfParser():
         return None
 
     @staticmethod
-    def _insert_stabilite_manteau(structured_data: StructuredData, data: Dict[str, str]) -> str:
+    def _insert_stabilite_manteau(structured_data: StructuredData, data: Dict[str, str]) -> StructuredData:
         """Insert stabilite manteau in a structured data object.
         """
         key_words_relations = StabiliteManteauKeys()

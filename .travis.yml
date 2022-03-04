@@ -40,6 +40,7 @@ jobs:
       script:
         - docker build -t bra/backend:latest .
     - stage: deploy
+      before_install: skip
       install: skip
       script:
-        - deploy.sh
+        - bash deploy.sh

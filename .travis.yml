@@ -6,10 +6,6 @@ python:
 services:
   - docker
 
-cache:
-  directories:
-    - "$HOME/google-cloud-sdk/"
-
 stages:
   - test
   - build

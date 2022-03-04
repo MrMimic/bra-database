@@ -25,7 +25,6 @@ before_install:
   - tesseract --help
   - pip install poetry
 
-
 jobs:
   include:
     - stage: test
@@ -36,6 +35,7 @@ jobs:
       - poetry run coverage
       - poetry run unit_tests
     - stage: build
+      before_install: skip
       install: skip
       script:
         - docker build -t bra/backend:latest .

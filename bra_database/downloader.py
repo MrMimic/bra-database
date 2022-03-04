@@ -42,9 +42,9 @@ class BraDownloader():
         """A JSON file contains the timestamps of the files to be downloaded.
         """
         json_file_path = self._create_file_path(date=date)
-        self.logger.info(f"Téléchargement de {json_file_path}")
+        self.logger.info(f"Downloading JSON file listing BRA: {json_file_path}")
         self.timestamps_bra = requests.get(json_file_path).json()
-        self.logger.info(f"Données de {len(json_file_path)} massifs reçus.")
+        self.logger.info(f"{len(self.timestamps_bra)} BRA file to be downloaded.")
 
     @retry(tries=2, delay=10)
     def _download_file(self, file_name: str) -> None:

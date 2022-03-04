@@ -72,6 +72,16 @@ class FrenchMonthsNumber:
     novembre: int = 11
     décembre: int = 12
 
+    def get_month_number(self, month: str) -> int:
+        """Return the month number.
+        """
+        return getattr(self, month.lower())
+
+    def get_month_name(self, month_number: int) -> str:
+        """Return the month name.
+        """
+        return [month for month in dir(self) if getattr(self, month) == month_number][0]
+
 
 class StabiliteManteauKeys():
     """

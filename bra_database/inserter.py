@@ -18,25 +18,38 @@ class BraInserter():
         self.credentials = credentials
         # Logger
         self.logger = logger or get_logger()
-        # Check the base and create it if needed
+        # Connection
         connection = pymysql.connect(host=self.credentials.host,
                                      user=self.credentials.user,
                                      password=self.credentials.password,
                                      port=self.credentials.port)
+        # Database
         with connection.cursor() as cursor:
             cursor.execute(f"CREATE DATABASE IF NOT EXISTS {self.credentials.database}")
             connection.commit()
         connection.select_db(self.credentials.database)
-        # Get the table description from the object structuring the data
+        # Table
+        self.large_columns = [
+            "stabilite_manteau_bloc", "declanchements_provoques", "situation_avalancheuse_typique", "departs_spontanes",
+            "qualite_neige", ""
+        ]
+        query = self._get_create_query_bra_table()
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+        connection.commit()
+        connection.close()
+        # Inserted files
+        self.inserted_files = self.list_inserted_files_recently()
+
+    def _get_create_query_bra_table(self) -> str:
+        """Use the type hints from the StructuredData object to create a table.
+        """
         table_columns = ()
         self.table_columns = []
         for column, ctype in get_type_hints(StructuredData).items():
             self.table_columns.append(column)
             if ctype.__name__ == "str":
-                if column in [
-                        "stabilite_manteau_bloc", "declanchements_provoques", "situation_avalancheuse_typique",
-                        "departs_spontanes", "qualite_neige", ""
-                ]:
+                if column in self.large_columns:
                     varchar_size = 1500
                 else:
                     varchar_size = 150
@@ -57,10 +70,7 @@ class BraInserter():
             CONSTRAINT unique_bra_each_day UNIQUE(original_link, massif, date)) \
             DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         """
-        with connection.cursor() as cursor:
-            cursor.execute(query)
-        connection.commit()
-        connection.close()
+        return query
 
     def __enter__(self) -> None:
         """Get a connection.
@@ -78,6 +88,16 @@ class BraInserter():
         self.connection.commit()
         self.connection.close()
 
+    def list_inserted_files_recently(self, days: int = 7) -> None:
+        """List the original PDF file from the database that have been inserted less than a week ago.
+        """
+        query = f"""
+            SELECT DISTINCT original_link 
+            FROM {self.credentials.database}.{self.credentials.table}
+            WHERE date > DATE_SUB(NOW(), INTERVAL {days} DAY)
+        """
+        return [file["original_link"] for file in self.exec_query(query, output=True)]
+
     def get_cursor(self) -> pymysql.cursors.DictCursor:
         """Get a cursor.
         """
@@ -86,15 +106,18 @@ class BraInserter():
     def insert(self, structured_data: StructuredData) -> None:
         """Insert a structured data extracted from PDF BRA.
         """
-        data = ()
-        for columns in self.table_columns:
-            data += (getattr(structured_data, columns), )
-        query = f"""
-            INSERT INTO {self.credentials.database}.{self.credentials.table} \
-            ({', '.join(self.table_columns)}) VALUES \
-            ({', '.join(['%s' for _ in self.table_columns])})
-        """
-        self.exec_query(query, data)
+        if structured_data.original_link not in self.inserted_files:
+            data = ()
+            for columns in self.table_columns:
+                data += (getattr(structured_data, columns), )
+            query = f"""
+                INSERT INTO {self.credentials.database}.{self.credentials.table} \
+                ({', '.join(self.table_columns)}) VALUES \
+                ({', '.join(['%s' for _ in self.table_columns])})
+            """
+            self.exec_query(query, data)
+        else:
+            self.logger.info(f"Tried to insert already treated file {structured_data.original_link}")
 
     def exec_query(self, query: str, data: Any = None, output: bool = False) -> Any:
         """Execute a query.

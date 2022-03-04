@@ -115,7 +115,7 @@ class PdfParser():
         if date:
             for month in dir(self.months):
                 if month in date:
-                    date = date.replace(month, str(self.months.__getattribute__(month)))
+                    date = date.replace(month, str(self.months.get_month_number(month)))
                     date = datetime.strptime(date, "%d %m %Y")
                     break
         return date

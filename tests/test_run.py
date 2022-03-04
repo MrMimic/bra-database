@@ -18,7 +18,7 @@ class ParserTests(unittest.TestCase):
         self.data = os.path.join(os.path.dirname(__file__), "data")
 
     @unittest.skip("Meant to be run locally.")
-    def RUN(self) -> None:
+    def test_RUN(self) -> None:
         """Complete test used to developp the process.
         """
         # Source .env file

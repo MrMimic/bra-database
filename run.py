@@ -37,7 +37,6 @@ credentials = DbCredentials()
 parser = PdfParser(logger=logger)
 
 for file in os.listdir(pdf_path):
-    print(file)
     structured_data = parser.parse(os.path.join(pdf_path, file))
     with BraInserter(credentials=credentials, logger=logger) as inserter:
         inserter.insert(structured_data)

@@ -1,5 +1,5 @@
 language: python
-dist: xenial
+dist: focal
 python:
   - "3.9"
 
@@ -7,7 +7,6 @@ services:
   - docker
 
 stages:
-  - lint
   - test
   - build
   - name: deploy
@@ -22,22 +21,21 @@ before_install:
   - tesseract --help
   - pip install poetry
 
-install:
-  - poetry install
 
 jobs:
   include:
-    - stage: lint
+    - stage: test
+      install: poetry install
       script: 
       - poetry run lint
       - poetry run bandit
-    - stage: test
-      script:
       - poetry run coverage
       - poetry run unit_tests
     - stage: build
+      install: skip
       script:
         - docker build -t bra/backend:latest .
     - stage: deploy
+      install: skip
       script:
         - echo "docker push ..."

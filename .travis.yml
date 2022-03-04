@@ -6,6 +6,10 @@ python:
 services:
   - docker
 
+cache:
+  directories:
+    - "$HOME/google-cloud-sdk/"
+
 stages:
   - test
   - build
@@ -38,4 +42,4 @@ jobs:
     - stage: deploy
       install: skip
       script:
-        - echo "docker push ..."
+        - deploy.sh

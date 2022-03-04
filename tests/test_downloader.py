@@ -33,5 +33,5 @@ class DownloaderTests(unittest.TestCase):
         """
         self.downloader.get_json_timestamp_file(date="20220303")
         self.downloader.timestamps_bra = self.downloader.timestamps_bra[0:1]
-        self.downloader.get_pdf_file()
+        self.downloader.get_pdf_files()
         self.assertTrue(len(os.listdir(self.tmp)) == 1)

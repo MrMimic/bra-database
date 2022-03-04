@@ -30,7 +30,7 @@ if not os.path.exists(pdf_path):
     os.makedirs(pdf_path)
 downloader = BraDownloader(pdf_path=pdf_path, logger=logger)
 downloader.get_json_timestamp_file()
-downloader.get_pdf_file()
+downloader.get_pdf_files()
 
 # Prepare the PDF parser and the DB credentials
 credentials = DbCredentials()

@@ -58,7 +58,7 @@ class BraDownloader():
             with open(file_path, 'wb') as out_file:
                 shutil.copyfileobj(response.raw, out_file)
 
-    def get_pdf_file(self) -> None:
+    def get_pdf_files(self) -> None:
         """Download a PDF file.
         """
         for bra in self.timestamps_bra:

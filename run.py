@@ -13,18 +13,19 @@ from bra_database.utils import DbCredentials, get_logger
 # Load credentials if found locally
 load_dotenv()
 
-try:
-    base_path = os.environ["BRA_LOG_FOLDER"]
-except KeyError:
-    base_path=os.path.join(os.sep, "logs")
-logger = get_logger(base_path=base_path)
-
 
 # Download the BRA files of the day
 try:
     today = os.environ["BRA_DATE"]
 except KeyError:
     today = datetime.today().strftime("%Y%m%d")
+
+# Get a distinct logger each day
+try:
+    base_path = os.environ["BRA_LOG_FOLDER"]
+except KeyError:
+    base_path = os.path.join(os.sep, "logs")
+logger = get_logger(base_path=base_path, file_name=f"{today}_bra_database.log")
 
 try:
     pdf_path = os.environ["BRA_PDF_FOLDER"]
@@ -44,7 +45,8 @@ except KeyError:
     image_output_path = os.path.join(os.sep, "img")
 parser = PdfParser(logger=logger, image_output_path=image_output_path)
 
-for file in os.listdir(pdf_path):
+for index, file in enumerate(os.listdir(pdf_path)):
+    logger.info(f"Parsing file {index + 1}/{len(os.listdir(pdf_path))}")
     structured_data = parser.parse(os.path.join(pdf_path, file))
     with BraInserter(credentials=credentials, logger=logger) as inserter:
         inserter.insert(structured_data)

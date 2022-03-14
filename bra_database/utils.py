@@ -126,7 +126,7 @@ class StabiliteManteauKeys():
         return None
 
 
-def get_logger(base_path: str = "logs") -> logging.Logger:
+def get_logger(base_path: str = "logs", file_name = None) -> logging.Logger:
     """Define and returns a logger.
     """
     logger = logging.getLogger(__name__)
@@ -141,8 +141,10 @@ def get_logger(base_path: str = "logs") -> logging.Logger:
     # File handler
     if not os.path.exists(base_path):
         os.makedirs(base_path)
-    execution_date = datetime.today().strftime("%Y%m%d")
-    log_path = os.path.join(base_path, f"{execution_date}_bra_database.log")
+    if not file_name:
+        execution_date = datetime.today().strftime("%Y%m%d")
+        file_name = f"{execution_date}_bra_database.log"
+    log_path = os.path.join(base_path, file_name)
     if os.path.exists(log_path):
         os.remove(log_path)
     file_handler = logging.FileHandler(log_path)

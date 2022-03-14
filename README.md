@@ -60,6 +60,8 @@ You can also specify the date to use with:
 
 ### Debug
 
+#### 1
+
 ```sql
     SELECT `date`, massif, until, departs, declanchements, risk_score, risk_str, stabilite_manteau_bloc, situation_avalancheuse_typique, departs_spontanes, declanchements_provoques, qualite_neige
     FROM bra.france
@@ -75,3 +77,14 @@ Some massifs never return the keys from the snow quality because these BRA does 
         "departs naturels": "peu probable avec un air sec et froid qui persiste encore, même si une ou deux plaques de fond ont pu être signalées ces derniers temps une corniche peut céder (très rarement, mais observé) et déclencher une plaque en contre bas"
     }
 ```
+
+#### 2
+
+The date column in SQL should be DATETIME and also find the time in the str.
+
+
+### Cool to have
+
+- Massifs drawn on a map
+- Color scaled on risk score for the last 3 days
+- On a massif page, the curve of the risk aligned with snow falls

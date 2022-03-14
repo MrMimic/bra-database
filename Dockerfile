@@ -6,14 +6,16 @@ RUN apt-get install -y apt-utils
 # Install OCR related needs
 RUN apt-get install -y imagemagick
 # By default, it has no grants on PDF
-RUN sed -i 's/  <!-- <policy domain="module" rights="none" pattern="PDF" \/> -->/  <policy domain="module" rights="read|write" pattern="PDF" \/>/g' /etc/ImageMagick-6/policy.xml
+RUN sed -i 's/  <policy domain="coder" rights="none" pattern="PDF" \/>/  <policy domain="coder" rights="read|write" pattern="PDF" \/>/g' /etc/ImageMagick-6/policy.xml
+RUN echo "====" && cat /etc/ImageMagick-6/policy.xml | grep "PDF" && echo "===="
 RUN apt-get install -y tesseract-ocr
 
-RUN mkdir -p /logs /bra /app
+RUN mkdir -p /logs /bra /app /img
 
 # Install python/pip/poetry
 ENV PYTHONUNBUFFERED=1
-RUN apt-get install -y python3.9 && ln -sf python3.9 /usr/bin/python3
+RUN apt-get update
+RUN apt-get install -y python3.9 --fix-missing && ln -sf python3.9 /usr/bin/python3
 RUN python3 --version
 RUN apt-get install -y python3-dev gcc musl-dev libffi-dev python3-pip apt-utils
 RUN python3 -m pip install --upgrade pip
@@ -42,4 +44,5 @@ WORKDIR /app
 RUN ls -alstrh
 RUN poetry config virtualenvs.in-project true
 RUN poetry install --no-dev
+
 CMD ["./run.sh"]

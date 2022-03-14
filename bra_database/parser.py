@@ -69,7 +69,7 @@ class PdfParser():
         """Initialise and set attributes.
         """
         self.logger = logger or get_logger()
-        self.image_output_path = image_output_path if image_output_path else "IMG"
+        self.image_output_path = image_output_path if image_output_path else "/img"
         # Utilities
         self.months = FrenchMonthsNumber()
         # Regexps

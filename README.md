@@ -17,13 +17,21 @@ Locally, create a .env file containing:
     MYSQL_TABLE=
 ```
 
+### Date
+
+By default, the program will use the current date. You can change it by setting the `BRA_DATE` environment variable.
+
+```bash
+    export BRA_DATE=20220304
+```
+
 ### Folder
 
 Once dockerised, paths are ensured. Locally, run:
 
 ```bash
     mkdir $PWD/out $PWD/logs
-    export BRA_PDF_FOLDER=$PWD/out
+    export BRA_PDF_FOLDER=$PWD/out/$BRA_DATE
     export BRA_LOG_FOLDER=$PWD/logs
 ```
 
@@ -41,4 +49,10 @@ Run every day the following command:
 
 ```bash
     docker run bra/backend:latest
+```
+
+You can also specify the date to use with:
+
+```bash
+    docker run --env BRA_DATE=$BRA_DATE bra/backend:latest
 ```

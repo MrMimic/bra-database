@@ -39,7 +39,9 @@ class BraInserter():
         connection.commit()
         connection.close()
         # Inserted files
+        self.__enter__()
         self.inserted_files = self.list_inserted_files_recently()
+        self.__exit__()
 
     def _get_create_query_bra_table(self) -> str:
         """Use the type hints from the StructuredData object to create a table.
@@ -48,22 +50,22 @@ class BraInserter():
         self.table_columns = []
         for column, ctype in get_type_hints(StructuredData).items():
             self.table_columns.append(column)
-            if ctype.__name__ == "str":
+            if "str" in ctype.__str__():
                 if column in self.large_columns:
                     varchar_size = 1500
                 else:
                     varchar_size = 150
                 table_columns += (f"{column} VARCHAR({varchar_size})", )
-            elif ctype.__name__ == "int":
+            elif "int" in ctype.__str__():
                 table_columns += (f"{column} SMALLINT", )
-            elif ctype.__name__ == "float":
+            elif "float" in ctype.__str__():
                 table_columns += (f"{column} FLOAT", )
-            elif ctype.__name__ == "bool":
+            elif "bool" in ctype.__str__():
                 table_columns += (f"{column} BOOLEAN", )
-            elif ctype.__name__ == "datetime":
+            elif "datetime" in ctype.__str__():
                 table_columns += (f"{column} DATETIME", )
             else:
-                self.logger.error(f"Unsupported type {ctype.__name__} from {column}")
+                self.logger.error(f"Unsupported type {ctype} from {column}")
         query = f"""
             CREATE TABLE IF NOT EXISTS {self.credentials.database}.{self.credentials.table} \
             (id INT PRIMARY KEY AUTO_INCREMENT, {', '.join(table_columns)}, \

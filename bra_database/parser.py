@@ -76,8 +76,8 @@ class PdfParser():
         self.r_massif = r"\s?MASSIF\s?:\s?(.*)\s?"
         self.r_date = r"rédigé le .*? ([0-9]{1,2}.*) à .*\."
         self.r_until = r"\s?[Jj]usqu'au .*? ([0-9]{1,2}.*[0-9]{2,4}).*\s?"
-        self.r_departs_spontanes = r"\s?Départs spontanés\s?:\s?(.*?)\.?\s?Déclenchements skieurs"
-        self.r_declanchement_skieurs = r"\s?Déclenchements skieurs\s?:\s?(.*?)\.?\s?Indices de risque"
+        self.r_departs_spontanes = r"\s?D[ée]parts spontan[ée]s\s?:\s?(.*?)\.?\s?D[ée]clenchements skieurs"
+        self.r_declanchement_skieurs = r"\s?D[ée]clenchements skieurs\s?:\s?(.*?)\.?\s?Indices de risque"
         self.r_risk_str = r"Estimation des risques jusqu'au .*\n(.*)\.?\nDéparts spontanés"
         self.r_stabilite_manteau = r"Stabilité du manteau neigeux(.*?)Neige fraîche à 1800 m"
         self.r_qualite_neige = r"Qualité de la neige(.*?)Tendance ultérieure des risques"
@@ -155,10 +155,14 @@ class PdfParser():
         if text_bloc:
             # Find the text keys
             r_keys = re.compile(r"\:\:([^:]*?) \: ")
-            keys = re.findall(r_keys, text_bloc)
+            # There is only 3 keys: Situation typique, Départs spontanés and Déclenchements skieurs
+            # BUG: if a " : " is in the text, it will create more keys. It only works for now if the " : " is in the last block.
+            keys = re.findall(r_keys, text_bloc)[0:3]
+            self.logger.info(f"Keys: {', '.join(keys)}")
             # The text of each key is retrieved behing this one and the next
             texts = {}
             for index, key in enumerate(keys):
+                self.logger.debug(key)
                 try:
                     regexp = re.compile(f"{key}(.*?){keys[index + 1]}")
                 except IndexError:

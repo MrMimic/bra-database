@@ -38,7 +38,11 @@ downloader.get_pdf_files()
 
 # Prepare the PDF parser and the DB credentials
 credentials = DbCredentials()
-parser = PdfParser(logger=logger)
+try:
+    image_output_path = os.environ["BRA_IMG_FOLDER"]
+except KeyError:
+    image_output_path = os.path.join(os.sep, "img")
+parser = PdfParser(logger=logger, image_output_path=image_output_path)
 
 for file in os.listdir(pdf_path):
     structured_data = parser.parse(os.path.join(pdf_path, file))

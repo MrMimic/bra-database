@@ -39,4 +39,4 @@ jobs:
       before_install: skip
       install: skip
       script:
-        - bash deploy.sh
+        - echo "Deployement not working on Travis due to piping env variables."

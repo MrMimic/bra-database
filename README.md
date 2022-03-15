@@ -30,10 +30,10 @@ By default, the program will use the current date. You can change it by setting 
 Once dockerised, paths are ensured. Locally, run:
 
 ```bash
-    mkdir $PWD/out $PWD/logs $PWD/IMG
+    mkdir $PWD/out $PWD/logs $PWD/img
     export BRA_PDF_FOLDER=$PWD/out/$BRA_DATE
     export BRA_LOG_FOLDER=$PWD/logs
-    export BRA_IMG_FOLDER=$PWD/IMG
+    export BRA_IMG_FOLDER=$PWD/img
 ```
 
 ### Docker

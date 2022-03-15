@@ -2,7 +2,7 @@
 .vscode
 logs/
 out/
-IMG/
+img/
 .env
 gcloud_key.json
 keyfile.json

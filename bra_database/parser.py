@@ -263,7 +263,7 @@ class PdfParser():
                 # Extracting informations
                 structured_data = self._insert_info(structured_data, self._get_massif(page.extract_text()), "massif")
                 structured_data = self._insert_info(structured_data, self._get_date(page.extract_text()), "date")
-                structured_data = self._insert_info(structured_data, self._get_until(page.extract_text()), "until")s
+                structured_data = self._insert_info(structured_data, self._get_until(page.extract_text()), "until")
                 structured_data = self._insert_info(structured_data, self._get_departs_spontanes(page.extract_text()),
                                                     "departs")
                 structured_data = self._insert_info(structured_data,

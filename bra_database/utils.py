@@ -113,8 +113,10 @@ class StabiliteManteauKeys():
 
     def __init__(self):
         self.situation_avalancheuse_typique: List[str] = ["typique", "avalancheuse"]
-        self.departs_spontanes: List[str] = ["spontané"]
-        self.declanchements_provoques: List[str] = ["skieurs", "déclanchement", "déclenchements", "provoqués"]
+        self.departs_spontanes: List[str] = ["spontané", "naturels"]
+        self.declanchements_provoques: List[str] = [
+            "skieurs", "déclanchement", "déclenchements", "provoqués", "declenchements", "accidentels"
+        ]
 
     def retrieve_best_match(self, text: str) -> Optional[str]:
         """Retrieve the best match of a text in the list of keys.
@@ -126,7 +128,7 @@ class StabiliteManteauKeys():
         return None
 
 
-def get_logger(base_path: str = "logs", file_name = None) -> logging.Logger:
+def get_logger(base_path: str = "logs", file_name: str = None) -> logging.Logger:
     """Define and returns a logger.
     """
     logger = logging.getLogger(__name__)

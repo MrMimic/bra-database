@@ -27,6 +27,7 @@ except KeyError:
     base_path = os.path.join(os.sep, "logs")
 logger = get_logger(base_path=base_path, file_name=f"{today}_bra_database.log")
 
+# Download PDF files
 try:
     pdf_path = os.environ["BRA_PDF_FOLDER"]
 except KeyError:

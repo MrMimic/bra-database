@@ -7,6 +7,7 @@ import re
 from curses.ascii import isdigit
 from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
 from typing import Any, Dict, Optional
 
 import cv2  # type: ignore
@@ -61,6 +62,26 @@ class StructuredData:
         return "- " + "\n- ".join([f"{key}: {value}" for key, value in self.__dict__.items()]) + "\n"
 
 
+class Regexps(Enum):
+    """Enum used to store the regexps used to parse the PDF.
+    """
+    # Massif name, at the  top
+    MASSIF = r"\s?MASSIF\s?:\s?(.*)\s?"
+    # Date and validity, just above
+    DATE = r"rédigé le .*? ([0-9]{1,2}.*) à .*\."
+    UNTIL = r"\s?[Jj]usqu'au .*? ([0-9]{1,2}.*[0-9]{2,4}).*\s?"
+    # Small text above the compass
+    RISK = r"Estimation des risques jusqu'au .*\n(.*)\.?\nDéparts spontanés"
+    # Small framed text
+    DEPARTS = r"\s?D[ée]parts spontan[ée]s\s?:\s?(.*?)\.?\s?D[ée]clenchements skieurs"
+    DECLENCHEMENTS = r"\s?D[ée]clenchements skieurs\s?:\s?(.*?)\.?\s?Indices de risque"
+    # Bloc about the stabitilty: situation avalancheuse, depars spontanées, départs provoqués
+    STABILITE = r"Stabilité du manteau neigeux(.*?)Neige fraîche à 1800 m"
+    # Bloc about the snow quality
+    NEIGE = r"Qualité de la neige(.*?)Tendance ultérieure des risques"
+    NEIGE_END_OF_PAGE = r"Qualité de la neige(.*)"
+
+
 class PdfParser():
     """Parse a PDF file and extract structured information to be used in IA models later.
     """
@@ -72,15 +93,8 @@ class PdfParser():
         self.image_output_path = image_output_path if image_output_path else "/img"
         # Utilities
         self.months = FrenchMonthsNumber()
-        # Regexps
-        self.r_massif = r"\s?MASSIF\s?:\s?(.*)\s?"
-        self.r_date = r"rédigé le .*? ([0-9]{1,2}.*) à .*\."
-        self.r_until = r"\s?[Jj]usqu'au .*? ([0-9]{1,2}.*[0-9]{2,4}).*\s?"
-        self.r_departs_spontanes = r"\s?D[ée]parts spontan[ée]s\s?:\s?(.*?)\.?\s?D[ée]clenchements skieurs"
-        self.r_declanchement_skieurs = r"\s?D[ée]clenchements skieurs\s?:\s?(.*?)\.?\s?Indices de risque"
-        self.r_risk_str = r"Estimation des risques jusqu'au .*\n(.*)\.?\nDéparts spontanés"
-        self.r_stabilite_manteau = r"Stabilité du manteau neigeux(.*?)Neige fraîche à 1800 m"
-        self.r_qualite_neige = r"Qualité de la neige(.*?)Tendance ultérieure des risques"
+        # Regexps used to parse the text
+        self.regexps = Regexps
 
     @staticmethod
     def _insert_info(structured_data: StructuredData, data: Any, key: str) -> StructuredData:
@@ -103,7 +117,7 @@ class PdfParser():
     def _get_massif(self, text: str) -> str:
         """Get the massif if the BRA.
         """
-        massif = self._get_from_regexp(text, self.r_massif)
+        massif = self._get_from_regexp(text, self.regexps.MASSIF.value)
         if massif:
             massif = massif.replace("/", "_")
         return massif
@@ -111,7 +125,7 @@ class PdfParser():
     def _get_date(self, text: str) -> str:
         """Get the date of the BRA.
         """
-        date = self._get_from_regexp(text, self.r_date)
+        date = self._get_from_regexp(text, self.regexps.DATE.value)
         if date:
             for month in dir(self.months):
                 if month in date:
@@ -123,7 +137,7 @@ class PdfParser():
     def _get_until(self, text: str) -> str:
         """Get the date of validity of the BRA.
         """
-        until = self._get_from_regexp(text, self.r_until)
+        until = self._get_from_regexp(text, self.regexps.UNTIL.value)
         if until:
             for month in dir(self.months):
                 if month in until:
@@ -135,23 +149,23 @@ class PdfParser():
     def _get_departs_spontanes(self, text: str) -> str:
         """Get the risk of autonomous avalanche starts.
         """
-        return self._get_from_regexp(text.replace("\n", " "), self.r_departs_spontanes)
+        return self._get_from_regexp(text.replace("\n", " "), self.regexps.DEPARTS.value)
 
     def _get_declanchement_skieurs(self, text: str) -> str:
         """Get how an avalanche can be triggered by a skier.
         """
-        return self._get_from_regexp(text.replace("\n", " "), self.r_declanchement_skieurs)
+        return self._get_from_regexp(text.replace("\n", " "), self.regexps.DECLENCHEMENTS.value)
 
     def _get_risk_str(self, text: str) -> str:
         """Get the risk score of the BRA.
         """
-        return self._get_from_regexp(text, self.r_risk_str)
+        return self._get_from_regexp(text, self.regexps.RISK.value)
 
     def _get_stabilite_manteau(self, text: str) -> str:
         """This bloc of text is less structured than others.
         """
         # We keep track of the \n
-        text_bloc = self._get_from_regexp(text.replace("\n", "::"), self.r_stabilite_manteau)
+        text_bloc = self._get_from_regexp(text.replace("\n", "::"), self.regexps.STABILITE.value)
         if text_bloc:
             # Find the text keys
             r_keys = re.compile(r"\:\:([^:]*?) \: ")
@@ -187,7 +201,11 @@ class PdfParser():
     def _get_qualite_neige(self, text: str) -> str:
         """Get the risk of autonomous avalanche starts.
         """
-        return self._get_from_regexp(text.replace("\n", " "), self.r_qualite_neige)
+        text_bloc = self._get_from_regexp(text.replace("\n", " "), self.regexps.NEIGE.value)
+        if not text_bloc:
+            # Sometime, the text is too long and match the end of page
+            text_bloc = self._get_from_regexp(text.replace("\n", " "), self.regexps.NEIGE_END_OF_PAGE.value)
+        return text_bloc
 
     @staticmethod
     def _extract_and_save_image(page: pdfplumber.PDF, image: pdfplumber.PDF, image_path: str) -> None:
@@ -245,7 +263,7 @@ class PdfParser():
                 # Extracting informations
                 structured_data = self._insert_info(structured_data, self._get_massif(page.extract_text()), "massif")
                 structured_data = self._insert_info(structured_data, self._get_date(page.extract_text()), "date")
-                structured_data = self._insert_info(structured_data, self._get_until(page.extract_text()), "until")
+                structured_data = self._insert_info(structured_data, self._get_until(page.extract_text()), "until")s
                 structured_data = self._insert_info(structured_data, self._get_departs_spontanes(page.extract_text()),
                                                     "departs")
                 structured_data = self._insert_info(structured_data,

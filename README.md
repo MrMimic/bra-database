@@ -44,7 +44,13 @@ Build locally:
     docker build -t bra/backend:latest .
 ```
 
-## Run
+To build it on GCP:
+
+```bash
+    gcloud builds submit --tag gcr.io/data-baguette/bra-database
+```
+
+## Run locally
 
 Run every day the following command:
 
@@ -77,11 +83,6 @@ Some massifs never return the keys from the snow quality because these BRA does 
         "departs naturels": "peu probable avec un air sec et froid qui persiste encore, même si une ou deux plaques de fond ont pu être signalées ces derniers temps une corniche peut céder (très rarement, mais observé) et déclencher une plaque en contre bas"
     }
 ```
-
-#### 2
-
-The date column in SQL should be DATETIME and also find the time in the str.
-
 
 ### Cool to have
 

@@ -168,9 +168,10 @@ class PdfParser():
         text_bloc = self._get_from_regexp(text.replace("\n", "::"), self.regexps.STABILITE.value)
         if text_bloc:
             # Find the text keys
-            r_keys = re.compile(r"\:\:([^:]*?) \: ")
+            r_keys = re.compile(r"\:\:([^:]*?) \: ?")
             # There is only 3 keys: Situation typique, Départs spontanés and Déclenchements skieurs
-            # BUG: if a " : " is in the text, it will create more keys. It only works for now if the " : " is in the last block.
+            # BUG: if a " : " is in the text, it will create more keys. It only works for now if the
+            # " : " is in the last block.
             keys = re.findall(r_keys, text_bloc)[0:3]
             self.logger.info(f"Keys: {', '.join(keys)}")
             # The text of each key is retrieved behing this one and the next

@@ -1,0 +1,20 @@
+# cronjob.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: bra-database
+spec:
+  schedule: "0 23 * * *"
+  concurrencyPolicy: Allow
+  startingDeadlineSeconds: 100
+  suspend: false
+  successfulJobsHistoryLimit: 10
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: bra-database
+            image: gcr.io/data-baguette/bra-database
+          restartPolicy: OnFailure

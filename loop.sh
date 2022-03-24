@@ -1,8 +1,10 @@
+source .venv/bin/activate
+
 for YEAR in {2022..2022}
 do
     for MONTH in {03..03}
     do
-        for DAY in {16..18}
+        for DAY in {17..24}
         do
             export BRA_DATE=$YEAR$MONTH$DAY
             export BRA_LOG_FOLDER=/home/emeric/CODE/PERSO/bra-database/logs

@@ -64,9 +64,52 @@ You can also specify the date to use with:
     docker run --env BRA_DATE=$BRA_DATE bra/backend:latest
 ```
 
+## Scheduling
+
+Create a GKE cluster:
+
+```bash
+    gcloud container clusters create-auto bra --region REGION --project=PROJECT
+```
+
+Create a NAT router:
+
+```bash
+gcloud compute routers create bra-nat-router \
+    --network default \
+    --region REGION \
+    --project=PROJECT
+```
+
+Add an external mapping configuration (to get traffic outside the cluster):
+
+```bash
+gcloud compute routers nats create bra-nat-router-config \
+    --region REGION \
+    --router bra-nat-router \
+    --nat-all-subnet-ip-ranges \
+    --auto-allocate-nat-external-ips \
+    --project=PROJECT
+```
+
+Log kubectl to the GKE:
+
+```bash
+gcloud container clusters get-credentials bra \
+    --region REGION \
+    --project=PROJECT
+kubectl get all --all-namespaces
+```
+
+And apply the cron job to the GKE:
+
+```bash
+kubectl apply -f $PWD/cronjob.yaml
+```
+
 ### Debug
 
-#### 1
+#### Bug 1
 
 ```sql
     SELECT `date`, massif, until, departs, declanchements, risk_score, risk_str, stabilite_manteau_bloc, situation_avalancheuse_typique, departs_spontanes, declanchements_provoques, qualite_neige
@@ -83,9 +126,3 @@ Some massifs never return the keys from the snow quality because these BRA does 
         "departs naturels": "peu probable avec un air sec et froid qui persiste encore, même si une ou deux plaques de fond ont pu être signalées ces derniers temps une corniche peut céder (très rarement, mais observé) et déclencher une plaque en contre bas"
     }
 ```
-
-### Cool to have
-
-- Massifs drawn on a map
-- Color scaled on risk score for the last 3 days
-- On a massif page, the curve of the risk aligned with snow falls

@@ -101,6 +101,29 @@ gcloud container clusters get-credentials bra \
 kubectl get all --all-namespaces
 ```
 
+Upload a secret yaml file on GKE containing the DB connection informations:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysecret
+type: Opaque
+data:
+  MYSQL_USER: 
+  MYSQL_PWD: 
+  MYSQL_HOST: 
+  MYSQL_PORT: 
+  MYSQL_DB: 
+  MYSQL_TABLE: 
+```
+
+> Note: values should be base64 encoded with `echo -n "MY_VALUE" | base64`.
+
+```bash
+    kubectl apply -f secret.yaml
+```
+
 And apply the cron job to the GKE:
 
 ```bash

@@ -6,9 +6,9 @@ metadata:
 spec:
   schedule: "0 23 * * *"
   concurrencyPolicy: Allow
-  startingDeadlineSeconds: 100
+  startingDeadlineSeconds: 10
   suspend: false
-  successfulJobsHistoryLimit: 10
+  successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
@@ -16,5 +16,17 @@ spec:
         spec:
           containers:
           - name: bra-database
-            image: gcr.io/data-baguette/bra-database
-          restartPolicy: OnFailure
+            image: gcr.io/data-baguette/bra-database:latest
+            envFrom:
+            - secretRef:
+                name: bra-db-creds
+            resources:
+              requests:
+                memory: "512Mi"
+                cpu: "500m"
+                ephemeral-storage: "256Mi"
+              limits:
+                memory: "1Gi"
+                cpu: "500m"
+                ephemeral-storage: "500Mi"
+          restartPolicy: Never

@@ -32,12 +32,13 @@ ADD ./run.py /app/run.py
 ADD ./run.sh /app/run.sh
 
 # Add env variables containing DB info
-ADD . ${MYSQL_USER}
-ADD . ${MYSQL_PWD}
-ADD . ${MYSQL_HOST}
-ADD . ${MYSQL_PORT}
-ADD . ${MYSQL_DB}
-ADD . ${MYSQL_TABLE}
+ENV MYSQL_USER ${MYSQL_USER}
+ENV MYSQL_PWD ${MYSQL_PWD}
+ENV MYSQL_HOST ${MYSQL_HOST}
+ENV MYSQL_PORT ${MYSQL_PORT}
+ENV MYSQL_DB ${MYSQL_DB}
+ENV MYSQL_TABLE ${MYSQL_TABLE}
+ENV MYSQL_TABLE ${MYSQL_TABLE}
 
 # Install the dependencies in the python system
 WORKDIR /app

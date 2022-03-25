@@ -7,6 +7,7 @@ img/
 gcloud_key.json
 keyfile.json
 test
+secret.yaml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

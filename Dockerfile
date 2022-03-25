@@ -29,7 +29,7 @@ RUN apt-get install -y ffmpeg libsm6 libxext6
 # Copy runtime files
 ADD ./bra_database /app/bra_database
 ADD ./run.py /app/run.py
-ADD ./run.sh /app/run.sh
+ADD ./scripts/run.sh /app/run.sh
 
 # Add env variables containing DB info
 ENV MYSQL_USER ${MYSQL_USER}

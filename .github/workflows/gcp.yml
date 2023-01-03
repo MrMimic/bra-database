@@ -43,7 +43,7 @@ jobs:
           --build-arg MYSQL_PORT='${{ secrets.MYSQL_PORT }}' \
           --build-arg MYSQL_DB='${{ secrets.MYSQL_DB }}' \
           --build-arg MYSQL_TABLE='${{ secrets.MYSQL_TABLE }}' \
-          --tag gcr.io/${{ secrets.GCP_PROJECT }}/${{ secrets.GCP_IMAGE }}:${{ secrets.GCP_TAG }}
+          --tag gcr.io/${{ secrets.GCP_PROJECT }}/${{ secrets.GCP_IMAGE }}:${{ secrets.GCP_TAG }} \
           .
 
     # Push the Docker image to Google Artifact Registry

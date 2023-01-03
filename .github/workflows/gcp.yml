@@ -27,7 +27,7 @@ jobs:
 
     - name: Authenticate GCR
       run: |-
-        echo '${{ steps.auth.outputs.access_token }}' | docker login -u oauth2accesstoken --password-stdin https://gcr.io
+        echo '${{ steps.auth.outputs.access_token }}' | winpty docker login -u oauth2accesstoken --password-stdin https://gcr.io
 
     # Build the Docker image
     - name: Build

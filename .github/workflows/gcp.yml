@@ -26,7 +26,7 @@ jobs:
 
     - name: Docker configuration
       run: |-
-        echo ${{steps.auth.outputs.access_token}} | docker login -u oauth2accesstoken --password-stdin https://gcr.io
+        echo ${{steps.auth.outputs.access_token}} | docker login https://gcr.io -u oauth2accesstoken --password-stdin
 
     # Build the Docker image
     - name: Build

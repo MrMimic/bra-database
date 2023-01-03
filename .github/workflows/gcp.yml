@@ -26,7 +26,7 @@ jobs:
         credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
     - uses: 'docker/login-action@v1'
-      name: Authenticate GCP
+      name: Authenticate GCR
       with:
         registry: 'gcr.io'
         username: 'oauth2accesstoken'

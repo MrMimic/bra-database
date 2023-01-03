@@ -49,6 +49,6 @@ jobs:
     # Push the Docker image to Google Artifact Registry
     - name: Publish
       run: |-
-        echo '${{ steps.auth.outputs.access_token }}' | docker login -u oauth2accesstoken --password-stdin https://gcr.io
+        echo '${{ steps.auth.outputs.access_token }}' | docker login -u oauth2accesstoken --password-stdin https://gcr.io && \
         docker push gcr.io/${{ secrets.GCP_PROJECT }}/${{ secrets.GCP_IMAGE }}
 

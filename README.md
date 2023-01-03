@@ -41,13 +41,20 @@ Once dockerised, paths are ensured. Locally, run:
 Build locally:
 
 ```bash
-    docker build -t bra/backend:latest .
+    bash scripts/build.sh
 ```
 
 To build it on GCP:
 
 ```bash
-    gcloud builds submit --tag gcr.io/data-baguette/bra-database
+    source .env
+    gcloud builds submit --tag gcr.io/data-baguette/bra-database \
+        --build-arg MYSQL_USER=$MYSQL_USER \
+        --build-arg MYSQL_PWD=$MYSQL_PWD \
+        --build-arg MYSQL_HOST=$MYSQL_HOST \
+        --build-arg MYSQL_PORT=$MYSQL_PORT \
+        --build-arg MYSQL_DB=$MYSQL_DB \
+        --build-arg MYSQL_TABLE=$MYSQL_TABLE
 ```
 
 ## Run locally
@@ -92,12 +99,12 @@ gcloud compute routers nats create bra-nat-router-config \
     --project=PROJECT
 ```
 
-Log kubectl to the GKE:
+Log kubectl to the GKE (add the Google source repo first)
 
 ```bash
-gcloud container clusters get-credentials bra \
-    --region REGION \
-    --project=PROJECT
+sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin
+export USE_GKE_GCLOUD_AUTH_PLUGIN=True
+gcloud container clusters get-credentials CLUSTER_NAME
 kubectl get all --all-namespaces
 ```
 
@@ -127,7 +134,7 @@ data:
 And apply the cron job to the GKE:
 
 ```bash
-kubectl apply -f $PWD/cronjob.yaml
+kubectl apply -f $PWD/kubernetes/cronjob.yaml
 ```
 
 ### Debug

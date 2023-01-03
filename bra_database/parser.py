@@ -177,13 +177,17 @@ class PdfParser():
             # The text of each key is retrieved behing this one and the next
             texts = {}
             for index, key in enumerate(keys):
-                self.logger.debug(key)
-                try:
-                    regexp = re.compile(f"{key}(.*?){keys[index + 1]}")
-                except IndexError:
-                    regexp = re.compile(f"{key}(.*?)$")
-                text = " ".join(re.search(regexp, text_bloc).group(1).replace(":", " ").split())
-                texts[key] = text
+                if len(key) < 30:  # Allow to pass missformed keys
+                    self.logger.debug(key)
+                    try:
+                        next_key = keys[index + 1].translate(str.maketrans('','',"()[]"))
+                        regexp = re.compile(f"{key}(.*?){next_key}")
+                    except IndexError:
+                        regexp = re.compile(f"{key}(.*?)$")
+                    regexp_in_text = re.search(regexp, text_bloc)
+                    if regexp_in_text:
+                        text = " ".join(regexp_in_text.group(1).replace(":", " ").split())
+                        texts[key] = text
             return json.dumps(texts, ensure_ascii=False)
         return None
 

@@ -31,7 +31,10 @@ class DbCredentials:
         self.database = database or self._try_to_get_key("MYSQL_DB")
         self.table = database or self._try_to_get_key("MYSQL_TABLE")
         # Say hello
-        self._handshake()
+        try:
+            self._handshake()
+        except pymysql.err.ProgrammingError as error:
+            logger.error(f"Error while connecting to the database: {error}. Maybe it needs to be created later.")
 
     def _handshake(self) -> None:
         """Get the number of already treated files in the DB.

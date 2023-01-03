@@ -3,11 +3,11 @@
 logs/
 out/
 img/
-.env
 gcloud_key.json
 keyfile.json
 test
 secret.yaml
+gcloud-service-key.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

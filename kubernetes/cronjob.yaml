@@ -16,7 +16,7 @@ spec:
         spec:
           containers:
           - name: bra-database
-            image: gcr.io/data-baguette/bra-database:latest
+            image: gcr.io/data-baguette/bra-backend:latest
             envFrom:
             - secretRef:
                 name: bra-db-creds

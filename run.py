@@ -39,7 +39,7 @@ downloader.get_json_timestamp_file(date=today)
 downloader.get_pdf_files()
 
 # Prepare the PDF parser and the DB credentials
-credentials = DbCredentials()
+credentials = DbCredentials(logger=logger)
 try:
     image_output_path = os.environ["BRA_IMG_FOLDER"]
 except KeyError:

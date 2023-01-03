@@ -50,5 +50,5 @@ jobs:
     - name: Publish
       run: |-
         echo '${{ steps.auth.outputs.access_token }}' | docker login -u oauth2accesstoken --password-stdin https://gcr.io
-        docker push gcr.io/${{ secrets.GCP_PROJECT }}/${{ secrets.GCP_IMAGE }}:${{ secrets.GCP_TAG }}
+        docker push gcr.io/${{ secrets.GCP_PROJECT }}/${{ secrets.GCP_IMAGE }}
 

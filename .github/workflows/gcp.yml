@@ -21,13 +21,17 @@ jobs:
     # Configure Workload Identity Federation and generate an access token.
     - id: 'auth'
       name: Authenticate GCP
-      uses: 'google-github-actions/auth@v0'
+      uses: 'google-github-actions/auth@v1'
       with:
+        token_format: 'access_token'
         credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
     - name: Authenticate GCR
-      run: |-
-        echo '${{ steps.auth.outputs.access_token }}' | winpty docker login -u oauth2accesstoken --password-stdin https://gcr.io
+      uses: 'docker/login-action@v1'
+      with:
+        registry: 'gcr.io' # or REGION-docker.pkg.dev
+        username: 'oauth2accesstoken'
+        password: '${{ steps.auth.outputs.access_token }}'
 
     # Build the Docker image
     - name: Build
